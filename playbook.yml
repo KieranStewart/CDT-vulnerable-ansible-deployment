@@ -1,0 +1,25 @@
+---
+- name: Deploy vulnerable service
+  hosts: targets
+  become: yes
+
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name: "{{ required_packages }}"
+        state: present
+        update_cache: yes
+
+    - name: Configure service
+      template:
+        src: templates/config.j2
+        dest: /etc/vulnapp/config.ini
+
+    - name: Ensure service is running
+      service:
+        name: apache2
+        state: started
+        enabled: yes
