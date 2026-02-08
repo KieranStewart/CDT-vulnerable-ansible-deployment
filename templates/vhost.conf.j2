@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+    ServerName vulnerable.local
+    DocumentRoot /var/www/amazin
+
+    <Directory /var/www/amazin>
+        AllowOverride None
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/amazin.log
+    CustomLog ${APACHE_LOG_DIR}/amazin.log combined
+</VirtualHost>

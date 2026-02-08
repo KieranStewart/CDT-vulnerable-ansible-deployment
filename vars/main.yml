@@ -1,4 +1,5 @@
-required_packages:
+web_packages:
   - apache2
   - php
-  - php-mysql
+  - libapache2-mod-php
+amazin_root: /var/www/amazin
