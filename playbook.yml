@@ -42,6 +42,12 @@
         - a2dissite 000-default.conf
         - a2ensite amazin.conf
       notify: restart apache
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
+        enabled: yes
 
   # Database setup
 - name: configure DB server
@@ -49,21 +55,15 @@
   become: yes
   
   tasks:
-    - name: Install MySQL
+    - name: Install MySQL Server
       ansible.builtin.dnf:
         name: mysql-server
         state: latest
 
-    - name: Start MySQL server
+    - name: Start and Enable MySQL server
       ansible.builtin.service:
         name: mysqld
         state: started
         enabled: yes 
 
-  handlers:
-    - name: restart apache
-      service:
-        name: apache2
-        state: restarted
-        enabled: yes
 
