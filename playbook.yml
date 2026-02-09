@@ -51,7 +51,7 @@
 
   # Database setup
 - name: configure DB server
-  hosts: db
+  hosts: targets
   become: yes
   
   tasks:
