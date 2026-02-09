@@ -44,49 +44,21 @@
       notify: restart apache
 
   # Database setup
+- name: configure DB server
+  hosts: db
+  become: yes
+  
+  tasks:
     - name: Install MySQL
-      apt:
+      ansible.builtin.dnf:
         name: mysql-server
-        state: present
-        update_cache: yes
+        state: latest
 
-    - name: Start MySQL
-      service:
-        name: mysql
+    - name: Start MySQL server
+      ansible.builtin.service:
+        name: mysqld
         state: started
-        enabled: yes
-
-    - name: Set MySQL root password
-      command: mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ db_root_password }}'; FLUSH PRIVILEGES;"
-      ignore_errors: yes
-
-    - name: Create database
-      mysql_db:
-        name: "{{ db_name }}"
-        state: present
-        login_user: root
-        login_password: "{{ db_root_password }}"
-
-    - name: Create DB user
-      mysql_user:
-        name: "{{ db_user }}"
-        password: "{{ db_password }}"
-        priv: "{{ db_name }}.*:ALL"
-        state: present
-        login_user: root
-        login_password: "{{ db_root_password }}"
-
-    - name: Create table
-      mysql_query:
-        login_user: root
-        login_password: "{{ db_root_password }}"
-        db: "{{ db_name }}"
-        query: |
-          CREATE TABLE IF NOT EXISTS products (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255),
-            description TEXT
-          );
+        enabled: yes 
 
   handlers:
     - name: restart apache
