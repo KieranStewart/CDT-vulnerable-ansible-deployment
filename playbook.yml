@@ -46,29 +46,28 @@
   # Database setup
     - name: Install MySQL
       apt:
-        name: mariadb-server
+        name: mysql-server
         state: present
         update_cache: yes
 
     - name: Start MySQL
       service:
-        name: mariadb
+        name: mysql
         state: started
         enabled: yes
 
     - name: Set MySQL root password
-      command: >
-        mysqladmin -u root password "{{ db_root_password }}"
+      command: mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ db_root_password }}'; FLUSH PRIVILEGES;"
       ignore_errors: yes
 
-    - name: Create vulnerable database
+    - name: Create database
       mysql_db:
         name: "{{ db_name }}"
         state: present
         login_user: root
         login_password: "{{ db_root_password }}"
 
-    - name: Create vulnerable DB user
+    - name: Create DB user
       mysql_user:
         name: "{{ db_user }}"
         password: "{{ db_password }}"
