@@ -7,6 +7,7 @@
     - vars/main.yml
 
   tasks:
+  # Web app setup
     - name: Install web packages
       apt:
         name: "{{ web_packages }}"
@@ -42,9 +43,56 @@
         - a2ensite amazin.conf
       notify: restart apache
 
+  # Database setup
+    - name: Install MySQL
+      apt:
+        name: mariadb-server
+        state: present
+        update_cache: yes
+
+    - name: Start MySQL
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Set MySQL root password
+      command: >
+        mysqladmin -u root password "{{ db_root_password }}"
+      ignore_errors: yes
+
+    - name: Create vulnerable database
+      mysql_db:
+        name: "{{ db_name }}"
+        state: present
+        login_user: root
+        login_password: "{{ db_root_password }}"
+
+    - name: Create vulnerable DB user
+      mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        priv: "{{ db_name }}.*:ALL"
+        state: present
+        login_user: root
+        login_password: "{{ db_root_password }}"
+
+    - name: Create table
+      mysql_query:
+        login_user: root
+        login_password: "{{ db_root_password }}"
+        db: "{{ db_name }}"
+        query: |
+          CREATE TABLE IF NOT EXISTS products (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255),
+            description TEXT
+          );
+
   handlers:
     - name: restart apache
       service:
         name: apache2
         state: restarted
         enabled: yes
+
