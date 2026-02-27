@@ -1,20 +1,30 @@
 ---
-- name: Deploy amazin web app
+- name: Deploy Amazin Web Stack (LAMP)
   hosts: targets
-  become: true
+  become: yes
 
   vars_files:
     - vars/main.yml
 
   tasks:
-  # Web app setup
-    - name: Install web packages
+    # --- 1. System & Package Setup ---
+    - name: Install Apache, MySQL, PHP, and dependencies
       apt:
-        name: "{{ web_packages }}"
+        name:
+          - apache2
+          - mysql-server
+          - php
+          - libapache2-mod-php
+          - php-mysql
+          - python3-mysqldb
+          - unzip
+          - git
         state: present
         update_cache: yes
+        cache_valid_time: 3600
 
-    - name: Create web root
+    # --- 2. Apache & Web App Setup ---
+    - name: Create web root directory
       file:
         path: "{{ amazin_root }}"
         state: directory
@@ -22,7 +32,7 @@
         group: www-data
         mode: '0755'
 
-    - name: Deploy PHP app
+    - name: Deploy PHP application code
       copy:
         src: files/amazin.php
         dest: "{{ amazin_root }}/index.php"
@@ -30,38 +40,64 @@
         group: www-data
         mode: '0644'
 
-    - name: Deploy virtual host
+    - name: Configure Apache virtual host
       template:
         src: templates/vhost.conf.j2
         dest: /etc/apache2/sites-available/amazin.conf
         mode: '0644'
-
-    - name: Enable site and disable default
-      command: "{{ item }}"
-      with_items:
-        - a2dissite 000-default.conf
-        - a2ensite amazin.conf
       notify: restart apache
+
+    - name: Enable new site and disable default site
+      shell: |
+        a2dissite 000-default.conf
+        a2ensite amazin.conf
+      register: site_config
+      changed_when: "'Enabling site' in site_config.stdout or 'Site 000-default disabled' in site_config.stdout"
+      notify: restart apache
+
+    # --- 3. MySQL Database Security ---
+    - name: Ensure MySQL is running
+      systemd:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: Configure .my.cnf for root authentication
+      copy:
+        content: |
+          [client]
+          user=root
+          password={{ db_root_password }}
+        dest: /root/.my.cnf
+        owner: root
+        mode: '0600'
+
+    - name: Secure MySQL root user and remove remote access
+      mysql_user:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        name: root
+        password: "{{ db_root_password }}"
+        host: "{{ item }}"
+        state: present
+      with_items:
+        - localhost
+        - 127.0.0.1
+        - ::1
+
+    - name: Remove the MySQL test database
+      mysql_db:
+        name: test
+        state: absent
+
+    # Optional: Removing the .my.cnf at the end makes future runs harder,
+    # so I've commented this out. Uncomment if security policy requires it.
+    # - name: Delete .my.cnf
+    #   file:
+    #     path: /root/.my.cnf
+    #     state: absent
+
   handlers:
     - name: restart apache
       service:
         name: apache2
         state: restarted
-        enabled: yes
-
-  # Database setup
-- name: configure DB server
-  hosts: targets
-  become: true
-  
-  tasks:
-    - name: Install MySQL Server
-      ansible.builtin.dnf:
-        name: mysql-server
-        state: latest
-
-    - name: Start and Enable MySQL server
-      ansible.builtin.service:
-        name: mysqld
-        state: started
-        enabled: yes 
