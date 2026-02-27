@@ -1,7 +1,7 @@
 ---
 - name: Deploy amazin web app
   hosts: targets
-  become: yes
+  become: true
 
   vars_files:
     - vars/main.yml
@@ -52,7 +52,7 @@
   # Database setup
 - name: configure DB server
   hosts: targets
-  become: yes
+  become: true
   
   tasks:
     - name: Install MySQL Server
@@ -65,5 +65,3 @@
         name: mysqld
         state: started
         enabled: yes 
-
-
