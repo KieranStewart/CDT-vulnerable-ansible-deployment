@@ -46,8 +46,8 @@ if ($term !== '') {
         
         /* Header / Navbar */
         header { background-color: #131921; color: white; display: flex; align-items: center; padding: 10px 20px; gap: 20px; }
-        
-        /* Modern Search Bar */
+        .logo-text {font-size: 26px; font-weight: bold; font-style: italic; letter-spacing: -1px;}
+
         .search-form { display: flex; flex-grow: 1; max-width: 800px; border-radius: 4px; overflow: hidden; }
         .search-input { flex-grow: 1; padding: 12px 15px; border: none; font-size: 16px; outline: none; }
         .search-btn { background-color: #febd69; border: none; padding: 10px 20px; cursor: pointer; font-size: 18px; color: #111; transition: background-color 0.2s; }
@@ -57,8 +57,7 @@ if ($term !== '') {
 <body>
     <header>
         <a href="?">
-            <div class="logo-icon">📦</div>
-            <div class="logo-text">Amazin</div>
+            <div class="logo-text">📦 Amazin</div>
         </a>
         
         <form method="GET" class="search-form">
@@ -70,9 +69,6 @@ if ($term !== '') {
     <main>
         <?php if ($term !== ''): ?>
         <h2>Results for: <?php echo $term; ?></h2>
-        
-        <p>Debug query:</p>
-        <pre><?php echo $debug_query; ?></pre>
 
         <?php if (isset($db_error)): ?>
             <p style="color: red;">Database Error: <?php echo $db_error; ?></p>
