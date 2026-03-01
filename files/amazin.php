@@ -38,15 +38,55 @@ if ($term !== '') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amazin - Spend Less, Expect Less.</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; background-color: #eaeded; color: #0f1111; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #eaeded; 
+            color: #0f1111; 
+        }
         
-        header { background-color: #131921; color: white; display: flex; align-items: center; padding: 10px 20px; gap: 20px; }
-        .logo-text {font-size: 26px; font-weight: bold; font-style: italic; letter-spacing: -1px;}
+        header { 
+            background-color: #131921; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            padding: 10px 20px; 
+            gap: 20px; 
+        }
+        .logo-text {
+            font-size: 26px; 
+            font-weight: bold; 
+            font-style: italic; 
+            letter-spacing: -1px;
+        }
 
-        .search-form { display: flex; flex-grow: 1; max-width: 800px; border-radius: 4px; overflow: hidden; }
-        .search-input { flex-grow: 1; padding: 12px 15px; border: none; font-size: 16px; outline: none; }
-        .search-btn { background-color: #febd69; border: none; padding: 10px 20px; cursor: pointer; font-size: 18px; color: #111; transition: background-color 0.2s; }
+        .search-form { 
+            display: flex; 
+            flex-grow: 1; 
+            max-width: 800px; 
+            border-radius: 4px; 
+            overflow: hidden; 
+        }
+        .search-input { 
+            flex-grow: 1; 
+            padding: 12px 15px; 
+            border: none; 
+            font-size: 16px; 
+            outline: none; 
+        }
+        .search-btn { 
+            background-color: #febd69; 
+            border: none; 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            color: #111; 
+            transition: background-color 0.2s; 
+        }
         .search-btn:hover { background-color: #f3a847; }
 
         .item {
@@ -80,7 +120,7 @@ if ($term !== '') {
         <?php endif; ?>
 
         <?php if (count($results) > 0): ?>
-            <ul>
+            <div style="display: flex; gap: 20px;">
             <?php foreach ($results as $item): ?>
                 <div class="item">
                     <strong><?php echo $item['name']; ?></strong> - 
@@ -88,7 +128,7 @@ if ($term !== '') {
                     <i><?php echo $item['description']; ?></i>
                 </div>
             <?php endforeach; ?>
-            </ul>
+            </div>
         <?php else: ?>
             <?php if (!isset($db_error)): ?>
                 <p>No products found.</p>
