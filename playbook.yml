@@ -7,7 +7,7 @@
     - vars/main.yml
 
   tasks:
-    # --- 1. System & Package Setup ---
+    # --- System & Package Setup ---
     - name: Install Apache, MySQL, PHP, and dependencies
       apt:
         name:
@@ -23,7 +23,7 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    # --- 2. Apache & Web App Setup ---
+    # --- Apache + Amazin ---
     - name: Create web root directory
       file:
         path: "{{ amazin_root }}"
@@ -55,7 +55,7 @@
       changed_when: "'Enabling site' in site_config.stdout or 'Site 000-default disabled' in site_config.stdout"
       notify: restart apache
 
-    # --- 3. MySQL Database Security ---
+    # --- MySQL Sec ---
     - name: Ensure MySQL is running
       systemd:
         name: mysql
@@ -94,7 +94,8 @@
     #   file:
     #     path: /root/.my.cnf
     #     state: absent
-    # --- 4. Database Setup & Seeding ---
+
+    # --- Database Setup + Init ---
     - name: Create the amazin database
       mysql_db:
         login_unix_socket: /var/run/mysqld/mysqld.sock
@@ -158,7 +159,7 @@
         state: import
         target: /tmp/seed_amazin.sql
 
-    # --- 5. System Backdoors & Red Team Targets ---
+    # --- Jeffrey Account ---
     - name: Create 'jeffrey' admin user with a known password
       user:
         name: jeffrey
