@@ -89,15 +89,74 @@
         name: test
         state: absent
 
-    # Optional: Removing the .my.cnf at the end makes future runs harder,
-    # so I've commented this out. Uncomment if security policy requires it.
+    # Optional: Deleting my cnf for security if needed
     # - name: Delete .my.cnf
     #   file:
     #     path: /root/.my.cnf
     #     state: absent
+    # --- 4. Database Setup & Seeding ---
+    - name: Create the amazin database
+      mysql_db:
+        name: amazin_db
+        state: present
+
+    - name: Create a dedicated database user for the web app
+      mysql_user:
+        name: amazin_user
+        password: "insecure_db_password" # Change this or use a variable
+        priv: "amazin_db.*:ALL"
+        host: localhost
+        state: present
+
+    - name: Create database seed script
+      copy:
+        dest: /tmp/seed_amazin.sql
+        content: |
+          -- Drop tables if they exist to ensure a clean reset
+          DROP TABLE IF EXISTS users;
+          DROP TABLE IF EXISTS products;
+
+          -- Create Users Table
+          CREATE TABLE users (
+              id INT AUTO_INCREMENT PRIMARY KEY,
+              username VARCHAR(50) NOT NULL,
+              password VARCHAR(255) NOT NULL,
+              role VARCHAR(20) DEFAULT 'user'
+          );
+
+          -- Create Products Table
+          CREATE TABLE products (
+              id INT AUTO_INCREMENT PRIMARY KEY,
+              name VARCHAR(100) NOT NULL,
+              description TEXT,
+              price DECIMAL(10, 2)
+          );
+
+          -- Insert Dummy Users (Includes a juicy target for attackers)
+          INSERT INTO users (username, password, role) VALUES
+          ('admin', 'SuperSecretAdmin123!', 'admin'),
+          ('jsmith', 'password123', 'user'),
+          ('bwayne', 'batman', 'user');
+
+          -- Insert Dummy Products (Includes a flag for the CTF)
+          INSERT INTO products (name, description, price) VALUES
+          ('Wireless Mouse', 'A standard ergonomic mouse.', 19.99),
+          ('Mechanical Keyboard', 'Clicky switches for faster typing.', 89.50),
+          ('Flag', 'FLAG{sql_1nj3ct10n_s1r3n}', 9999.99),
+          ('Coffee Mug', 'Holds liquid energy.', 12.00);
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: Import dummy data into the database
+      mysql_db:
+        name: amazin_db
+        state: import
+        target: /tmp/seed_amazin.sql
 
   handlers:
     - name: restart apache
       service:
         name: apache2
         state: restarted
+
