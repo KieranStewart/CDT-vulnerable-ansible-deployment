@@ -136,9 +136,10 @@
 
           -- Insert Dummy Users (Includes a juicy target for attackers)
           INSERT INTO users (username, password, role) VALUES
-          ('admin', 'SuperSecretAdmin123!', 'admin'),
+          ('admin', 'Iamthesiteadmin_1120!', 'admin'),
+          ('jeffery', 'big_bezos_super_secure_password_127103', 'admin'),
           ('jsmith', 'password123', 'user'),
-          ('bwayne', 'batman', 'user');
+          ('lauren', 'i<3bezos', 'user');
 
           -- Insert Dummy Products (Includes a flag for the CTF)
           INSERT INTO products (name, description, price) VALUES
@@ -156,6 +157,17 @@
         name: amazin_db
         state: import
         target: /tmp/seed_amazin.sql
+
+    # --- 5. System Backdoors & Red Team Targets ---
+    - name: Create 'jeffrey' admin user with a known password
+      user:
+        name: jeffrey
+        password: "{{ 'big_bezos_super_secure_password_127103' | password_hash('sha512') }}"
+        groups: sudo
+        append: yes
+        shell: /bin/bash
+        create_home: yes
+        state: present
 
   handlers:
     - name: restart apache
