@@ -97,13 +97,15 @@
     # --- 4. Database Setup & Seeding ---
     - name: Create the amazin database
       mysql_db:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
         name: amazin_db
         state: present
 
     - name: Create a dedicated database user for the web app
       mysql_user:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
         name: amazin_user
-        password: "insecure_db_password" # Change this or use a variable
+        password: "insecure_db_password"
         priv: "amazin_db.*:ALL"
         host: localhost
         state: present
@@ -150,6 +152,7 @@
 
     - name: Import dummy data into the database
       mysql_db:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
         name: amazin_db
         state: import
         target: /tmp/seed_amazin.sql
