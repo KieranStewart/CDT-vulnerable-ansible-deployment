@@ -1,14 +1,14 @@
 <?php
-// Database credentials matching the Ansible deployment
+// database creds matching ansible deploy // TODO look for a way to import automatically to reduce number of changes that need to be made
 $db_host = 'localhost';
 $db_user = 'amazin_user';
 $db_pass = 'insecure_db_password';
 $db_name = 'amazin_db';
 
-// Create connection
+// mysql conn
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
-// Check connection
+// verify
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -18,7 +18,6 @@ $results = [];
 $debug_query = "";
 
 if ($term !== '') {
-    // VULNERABILITY 1: SQL Injection
     $debug_query = "SELECT * FROM products WHERE name LIKE '%$term%'";
     
     $result = $conn->query($debug_query);
@@ -28,7 +27,6 @@ if ($term !== '') {
             $results[] = $row;
         }
     } else {
-        // VULNERABILITY 2: Information Disclosure
         $db_error = $conn->error;
     }
 }
@@ -40,11 +38,9 @@ if ($term !== '') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amazin - Spend Less, Expect Less.</title>
     <style>
-        /* Reset and Base Styles */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: Arial, sans-serif; background-color: #eaeded; color: #0f1111; }
         
-        /* Header / Navbar */
         header { background-color: #131921; color: white; display: flex; align-items: center; padding: 10px 20px; gap: 20px; }
         .logo-text {font-size: 26px; font-weight: bold; font-style: italic; letter-spacing: -1px;}
 
@@ -52,6 +48,15 @@ if ($term !== '') {
         .search-input { flex-grow: 1; padding: 12px 15px; border: none; font-size: 16px; outline: none; }
         .search-btn { background-color: #febd69; border: none; padding: 10px 20px; cursor: pointer; font-size: 18px; color: #111; transition: background-color 0.2s; }
         .search-btn:hover { background-color: #f3a847; }
+
+        .item {
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -77,11 +82,11 @@ if ($term !== '') {
         <?php if (count($results) > 0): ?>
             <ul>
             <?php foreach ($results as $item): ?>
-                <li>
+                <div class="item">
                     <strong><?php echo $item['name']; ?></strong> - 
                     $<?php echo $item['price']; ?><br>
                     <i><?php echo $item['description']; ?></i>
-                </li>
+                </div>
             <?php endforeach; ?>
             </ul>
         <?php else: ?>
